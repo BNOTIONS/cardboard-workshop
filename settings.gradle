@@ -1,1 +1,1 @@
-include ':CardboardSample'
+include ':app', ':rajawali-vr', ':rajawali-core'

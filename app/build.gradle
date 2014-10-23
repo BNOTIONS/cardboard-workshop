@@ -1,0 +1,28 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.0.1"
+
+    defaultConfig {
+        applicationId "cardboard.androidto.com"
+        minSdkVersion 16
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:21.0.0'
+    compile project(':rajawali-core')
+    compile project(':rajawali-vr')
+}
