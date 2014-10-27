@@ -4,9 +4,11 @@ import android.content.Context;
 import android.media.MediaPlayer;
 
 import com.androidto.cardboard.FrameUpdater;
+import com.androidto.cardboard.R;
 
 import rajawali.materials.Material;
 import rajawali.materials.textures.ATexture;
+import rajawali.materials.textures.Texture;
 import rajawali.materials.textures.VideoTexture;
 import rajawali.primitives.Plane;
 
@@ -18,26 +20,29 @@ public class VideoPlane extends Plane implements FrameUpdater {
     private VideoTexture videoTexture;
     private MediaPlayer mediaPlayer;
 
-    public VideoPlane(Context context, int width, int height, int segmentsWidth, int segmentsHeight, int videoResourceId) {
-        super(width, height, segmentsWidth, segmentsWidth);
+    private Material videoMaterial;
+
+    public VideoPlane(Context context, String name, int width, int height, int segmentsWidth, int segmentsHeight, int videoResourceId) {
+        super(width, height, segmentsWidth, segmentsHeight);
 
         mediaPlayer = MediaPlayer.create(context, videoResourceId);
         mediaPlayer.setLooping(true);
-        mediaPlayer.start();
 
-        videoTexture = new VideoTexture("video", mediaPlayer);
+        videoTexture = new VideoTexture(name + "_video", mediaPlayer);
         videoTexture.setInfluence(1);
 
-        Material material = new Material();
-        material.setColorInfluence(0);
+        Material previewMaterial = new Material();
+        videoMaterial = new Material();
+        videoMaterial.setColorInfluence(0);
         try {
-            material.addTexture(videoTexture);
+            videoMaterial.addTexture(videoTexture);
+            previewMaterial.addTexture(new Texture(name + "_preview", R.drawable.yellow));
         } catch (ATexture.TextureException e) {
             e.printStackTrace();
             throw new RuntimeException();
         }
 
-        setMaterial(material);
+        setMaterial(previewMaterial);
     }
 
     public void start() {
@@ -45,6 +50,7 @@ public class VideoPlane extends Plane implements FrameUpdater {
             return;
         }
 
+        setMaterial(videoMaterial);
         try {
             mediaPlayer.start();
         } catch (IllegalStateException e) {

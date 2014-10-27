@@ -1,9 +1,10 @@
 package com.androidto.cardboard;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.opengl.Matrix;
-import android.widget.Toast;
 
+import com.androidto.cardboard.util.Utils;
 import com.androidto.cardboard.views.VideoPlane;
 import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
 
@@ -27,9 +28,10 @@ public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSe
 
     private static final float YAW_LIMIT = 0.12f;
     private static final float PITCH_LIMIT = 0.12f;
+    private static final int[] videosToShow = new int[] {
+            R.raw.rc, R.raw.review };
 
     private List<VideoPlane> videos = new ArrayList<VideoPlane>();
-
     private MagnetSensor magnetSensor;
 
     public VideoTextureRenderer(Context context) {
@@ -58,12 +60,18 @@ public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSe
     public void initScene() {
         super.initScene();
 
-        VideoPlane videoPlane = new VideoPlane(getContext(), 2, 2, 1, 1, R.raw.rc);
-        //Place video plane in front of us on start
-        videoPlane.setPosition(-5, 0, 0);
-        //Rotate so it faces us
-        videoPlane.rotateAround(new Vector3(0, 1, 0), 90);
-        videos.add(videoPlane);
+        int size = videosToShow.length;
+        for (int i = 0; i < size; i++) {
+            //Place video plane in front of us on start
+            float angle = Utils.normalizeAngle(180 - (i * 40));     //do not question this value
+            PointF point = Utils.getPointAroundCenter(angle, new PointF(0, 0), 5);
+
+            VideoPlane videoPlane = new VideoPlane(getContext(), "video" + i, 2, 2, 1, 1, videosToShow[i]);
+            videoPlane.setPosition(point.x, 0, point.y);
+            //Rotate so it faces us
+            videoPlane.rotateAround(new Vector3(0, 1, 0), Utils.normalizeAngle(angle - 90));
+            videos.add(videoPlane);
+        }
 
         RajawaliScene scene = getCurrentScene();
         scene.addLight(new DirectionalLight(-1, 0, 0));
@@ -81,6 +89,7 @@ public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSe
         super.onSurfaceDestroyed();
 
         for (VideoPlane video : videos) {
+            video.pause();
             video.stop();
         }
 
@@ -113,13 +122,12 @@ public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSe
         for (VideoPlane video : videos) {
             if (isLookingAt(video)) {
                 lookingAt = video;
+                break;
             }
         }
 
         if (lookingAt != null) {
-            Toast.makeText(getContext(), "Looking at video", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getContext(), "_NOT_ Looking at video", Toast.LENGTH_SHORT).show();
+            lookingAt.start();
         }
     }
 }

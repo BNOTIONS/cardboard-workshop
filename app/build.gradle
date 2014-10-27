@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.0.1"
 
     defaultConfig {
-        applicationId "cardboard.androidto.com"
+        applicationId "com.androidto.cardboard"
         minSdkVersion 16
         targetSdkVersion 21
         versionCode 1
