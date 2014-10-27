@@ -2,6 +2,7 @@ package com.androidto.cardboard;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.OrientationEventListener;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -13,7 +14,8 @@ import rajawali.vr.RajawaliVRActivity;
  * Created by marcashman on 2014-10-23.
  */
 public class VideoTextureActivity extends RajawaliVRActivity {
-    private VideoTextureRenderer mRenderer;
+
+    private OrientationEventListener orientationEventListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,9 +30,23 @@ public class VideoTextureActivity extends RajawaliVRActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        mRenderer = new VideoTextureRenderer(this);
+        VideoTextureRenderer mRenderer = new VideoTextureRenderer(this);
         mRenderer.getCurrentCamera().setOrientation(new Quaternion(new Vector3(0, 1, 0), 90));
         mRenderer.setSurfaceView(mSurfaceView);
         setRenderer(mRenderer);
+
+//        orientationEventListener = new PortraitFinishListener(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+//        orientationEventListener.enable();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+//        orientationEventListener.disable();
     }
 }

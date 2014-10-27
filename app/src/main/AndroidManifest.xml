@@ -7,7 +7,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name">
         <activity
-            android:name=".RajawaliVRExampleActivity"
+            android:name=".VideoTextureActivity"
             android:screenOrientation="landscape"
             android:label="@string/app_name">
             <intent-filter>

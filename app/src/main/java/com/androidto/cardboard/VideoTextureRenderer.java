@@ -1,20 +1,21 @@
 package com.androidto.cardboard;
 
 import android.content.Context;
-import android.media.MediaPlayer;
+import android.opengl.Matrix;
+import android.widget.Toast;
 
+import com.androidto.cardboard.views.VideoPlane;
 import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import rajawali.Object3D;
 import rajawali.lights.DirectionalLight;
-import rajawali.materials.Material;
-import rajawali.materials.textures.ATexture;
-import rajawali.materials.textures.VideoTexture;
 import rajawali.math.vector.Vector3;
-import rajawali.primitives.Plane;
 import rajawali.scene.RajawaliScene;
 import rajawali.vr.RajawaliVRRenderer;
 
@@ -24,46 +25,51 @@ import rajawali.vr.RajawaliVRRenderer;
  */
 public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSensor.OnCardboardTriggerListener {
 
-    private MediaPlayer mMediaPlayer;
-    private VideoTexture videoTexture;
+    private static final float YAW_LIMIT = 0.12f;
+    private static final float PITCH_LIMIT = 0.12f;
+
+    private List<VideoPlane> videos = new ArrayList<VideoPlane>();
+
+    private MagnetSensor magnetSensor;
 
     public VideoTextureRenderer(Context context) {
         super(context);
         setFrameRate(60);
 
-        MagnetSensor magnetSensor = new MagnetSensor(getContext());
+        magnetSensor = new MagnetSensor(getContext());
         magnetSensor.setOnCardboardTriggerListener(this);
+        magnetSensor.start();
+    }
+
+    private boolean isLookingAt(Object3D object3D) {
+        float[] initVec = {0, 0, 0, 1.0f};
+        float[] objPositionVec = new float[4];
+
+        float[] mModelView = new float[16];
+        Matrix.multiplyMM(mModelView, 0, getHeadView(), 0, object3D.getModelMatrix().getFloatValues(), 0);
+        Matrix.multiplyMV(objPositionVec, 0, mModelView, 0, initVec, 0);
+
+        float pitch = (float)Math.atan2(objPositionVec[1], -objPositionVec[2]);
+        float yaw = (float)Math.atan2(objPositionVec[0], -objPositionVec[2]);
+
+        return (Math.abs(pitch) < PITCH_LIMIT) && (Math.abs(yaw) < YAW_LIMIT);
     }
 
     public void initScene() {
         super.initScene();
 
-        mMediaPlayer = MediaPlayer.create(getContext(), R.raw.robotchicken);
-        mMediaPlayer.setLooping(true);
-        //start and pause so the first frame is shown
-        mMediaPlayer.start();
-        mMediaPlayer.pause();
-
-        videoTexture = new VideoTexture("video", mMediaPlayer);
-        videoTexture.setInfluence(1);
-
-        Material material = new Material();
-        material.setColorInfluence(0);
-        try {
-            material.addTexture(videoTexture);
-        } catch (ATexture.TextureException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-
-        Object3D videoPane = new Plane(2, 2, 1, 1);
-        videoPane.setMaterial(material);
-        videoPane.setPosition(-5, 0, 0);
-        videoPane.rotateAround(new Vector3(0, 1, 0), 90);
+        VideoPlane videoPlane = new VideoPlane(getContext(), 2, 2, 1, 1, R.raw.rc);
+        //Place video plane in front of us on start
+        videoPlane.setPosition(-5, 0, 0);
+        //Rotate so it faces us
+        videoPlane.rotateAround(new Vector3(0, 1, 0), 90);
+        videos.add(videoPlane);
 
         RajawaliScene scene = getCurrentScene();
-        scene.addLight(new DirectionalLight(0, 0, 1));
-        scene.addChild(videoPane);
+        scene.addLight(new DirectionalLight(-1, 0, 0));
+        for (VideoPlane video : videos) {
+            scene.addChild(video);
+        }
     }
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -74,8 +80,11 @@ public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSe
     public void onSurfaceDestroyed() {
         super.onSurfaceDestroyed();
 
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
+        for (VideoPlane video : videos) {
+            video.stop();
+        }
+
+        magnetSensor.stop();
     }
 
     @Override
@@ -83,22 +92,34 @@ public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSe
         super.onVisibilityChanged(visible);
 
         if (!visible) {
-            if (mMediaPlayer != null) {
-                mMediaPlayer.pause();
+            for (VideoPlane video : videos) {
+                video.pause();
             }
-        } else if (mMediaPlayer != null) {
-            mMediaPlayer.start();
         }
     }
 
     @Override
     public void onDrawFrame(GL10 glUnused) {
         super.onDrawFrame(glUnused);
-        videoTexture.update();
+
+        for (VideoPlane video : videos) {
+            video.onFrameUpdated();
+        }
     }
 
     @Override
     public void onCardboardTrigger() {
+        VideoPlane lookingAt = null;
+        for (VideoPlane video : videos) {
+            if (isLookingAt(video)) {
+                lookingAt = video;
+            }
+        }
 
+        if (lookingAt != null) {
+            Toast.makeText(getContext(), "Looking at video", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "_NOT_ Looking at video", Toast.LENGTH_SHORT).show();
+        }
     }
 }
