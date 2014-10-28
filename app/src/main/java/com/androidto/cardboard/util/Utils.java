@@ -18,26 +18,11 @@ public class Utils {
     /**
      * Returns a point on the circumference of a circle given an angle
      */
-    public static PointF getPointAroundCenter(double angle, PointF center, double radius) {
+    public static PointF getPointAroundPoint(double angle, PointF centerPoint, double radius) {
         PointF point = new PointF();
-        point.y = (float) (center.y + radius * Math.sin(Math.toRadians(angle)));
-        point.x = (float) (center.x + radius * Math.cos(Math.toRadians(angle)));
+        point.y = (float) (centerPoint.y + radius * Math.sin(Math.toRadians(angle)));
+        point.x = (float) (centerPoint.x + radius * Math.cos(Math.toRadians(angle)));
         return point;
-    }
-
-    /**
-     * <p>Use this to normalize angles which have math applied on them</p>
-     *
-     * <p>e.g. <br>
-     *     normalizeAngle(0 - 90) = 270<br>
-     *     normalizeAngle(270 + 270) = 180</p>
-     */
-    public static double normalizeAngle(double angle) {
-        angle = angle % 360;
-        if (angle <= 0) {
-            angle = 360 + angle;
-        }
-        return angle;
     }
 
     /**
