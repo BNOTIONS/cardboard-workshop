@@ -46,8 +46,4 @@ public class RajawaliVRRenderer extends RajawaliSideBySideRenderer {
 		setCameraOrientation(mCameraOrientation);
 		super.onRender(deltaTime);
 	}
-
-    public float[] getHeadView() {
-        return mHeadViewMatrix;
-    }
 }
