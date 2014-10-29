@@ -18,9 +18,6 @@ import rajawali.scene.RajawaliScene;
 import rajawali.vr.RajawaliVRRenderer;
 
 
-/**
- * Created by marcashman on 2014-10-23.
- */
 public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSensor.OnCardboardTriggerListener {
 
     private static final int[] videosToShow = new int[] {
@@ -44,13 +41,13 @@ public class VideoTextureRenderer extends RajawaliVRRenderer implements MagnetSe
         int size = videosToShow.length;
         for (int i = 0; i < size; i++) {
             //Place video plane in front of us on start
-            double angle = 180 - (i * 40);     //do not question this value
-            PointF point = Utils.getPointAroundPoint(angle, new PointF(0, 0), 5);
+            double angle = 180 - (i * 40);
+            PointF point = Utils.getPointOnCircle(angle, new PointF(0, 0), 5);
 
             VideoPlane videoPlane = new VideoPlane(getContext(), "video" + i, 2, 2, 1, 1, videosToShow[i]);
             videoPlane.setPosition(point.x, 0, point.y);
             //Rotate so it faces us
-            Utils.faceCamera(videoPlane);
+            videoPlane.setOrientation(Utils.getCameraFacingQuat(videoPlane));
 
             videos.add(videoPlane);
         }

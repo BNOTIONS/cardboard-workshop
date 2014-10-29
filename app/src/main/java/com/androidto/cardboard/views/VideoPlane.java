@@ -12,9 +12,6 @@ import rajawali.materials.textures.Texture;
 import rajawali.materials.textures.VideoTexture;
 import rajawali.primitives.Plane;
 
-/**
- * Created by marcashman on 2014-10-27.
- */
 public class VideoPlane extends Plane implements FrameUpdater {
 
     private VideoTexture videoTexture;
