@@ -1,5 +1,7 @@
 package com.androidto.cardboard.anim;
 
+import java.util.Random;
+
 import rajawali.animation.RotateAroundAnimation3D;
 import rajawali.math.MathUtil;
 import rajawali.math.vector.Vector3;
@@ -12,11 +14,11 @@ public class ShiftingRotateAroundAnimation3D extends RotateAroundAnimation3D {
 
     public ShiftingRotateAroundAnimation3D(Vector3 center, Vector3.Axis axis,
                                            double distance, double maxShift,
-                                           double seed, boolean useSin) {
+                                           double seed) {
         super(center, axis, distance);
         this.maxShift = maxShift;
-        this.useSin = useSin;
         this.seed = seed;
+        this.useSin = new Random().nextBoolean();
     }
 
     @Override

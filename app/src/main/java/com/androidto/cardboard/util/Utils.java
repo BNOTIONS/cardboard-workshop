@@ -25,9 +25,6 @@ public class Utils {
 
     /**
      * performs a rough estimate whether the head is looking at the object or not
-     * @param headView
-     * @param object3D
-     * @return
      */
     public static boolean isLookingAt(float[] headView, Object3D object3D) {
         float[] initVec = {0, 0, 0, 1.0f};
@@ -48,27 +45,5 @@ public class Utils {
      */
     public static Quaternion getCameraFacingQuat(ATransformable3D object) {
         return Quaternion.lookAtAndCreate(object.getPosition().inverse(), new Vector3(0, 1, 0), true);
-    }
-
-    /**
-     * Find a new random position for the object.
-     * We'll rotate it around the Y-axis so it's out of sight, and then up or down by a little bit.
-     */
-    public static void respawnOutOfSight(Object3D object, int distance) {
-        float[] rotationMatrix = new float[16];
-        float[] posVec = new float[4];
-
-        // First rotate in XZ plane, between 90 and 270 deg away, and scale so that we vary
-        // the object's distance from the user.
-        float angleXZ = (float) Math.random() * 180 + 90;
-        Matrix.setRotateM(rotationMatrix, 0, angleXZ, 0f, 1f, 0f);
-
-        // Now get the up or down angle, between -20 and 20 degrees
-        float angleY = (float) Math.random() * 60 - 30; // angle in Y plane, between -30 and 30
-        angleY = (float) Math.toRadians(angleY);
-        float newY = (float)Math.tan(angleY) * distance;
-
-        object.setPosition(posVec[0], newY, posVec[2]);
-
     }
 }

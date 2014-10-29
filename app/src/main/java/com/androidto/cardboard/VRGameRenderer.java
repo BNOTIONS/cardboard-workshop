@@ -2,7 +2,6 @@ package com.androidto.cardboard;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.widget.Toast;
 
 import com.androidto.cardboard.anim.ShiftingRotateAroundAnimation3D;
 import com.androidto.cardboard.anim.StrafingRotateAroundAnimation;
@@ -18,6 +17,7 @@ import rajawali.animation.Animation;
 import rajawali.animation.RotateAroundAnimation3D;
 import rajawali.lights.ALight;
 import rajawali.lights.DirectionalLight;
+import rajawali.lights.PointLight;
 import rajawali.materials.Material;
 import rajawali.materials.methods.DiffuseMethod;
 import rajawali.materials.textures.NormalMapTexture;
@@ -37,12 +37,12 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
     private static final int NUM_OBSTACLES = 120;
     private static final int OBSTACLE_DIST = 5;
     private static final int OBSTACLE_ROTATION_TIME = 25 * 1000;        //25 seconds
-    private static final int MAX_OBSTACLE_VERT_SHIFT = 4;
+    private static final int OBSTACLE_VERT_SHIFT = 4;
 
     private static final int NUM_OBJECTIVES = 5;
     private static final int OBJECTIVE_DIST = 7;
     private static final int OBJECTIVE_ROTATION_TIME = 40 * 1000;       //40 seconds
-    private static final int MAX_OBJECTIVE_VERT_SHIFT = 2;
+    private static final int OBJECTIVE_VERT_SHIFT = 3;
 
     private List<Object3D> obstacles = new ArrayList<Object3D>();
     private List<Object3D> objectives = new ArrayList<Object3D>();
@@ -56,11 +56,11 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
     public void initScene() {
         super.initScene();
 
+        getCurrentScene().setBackgroundColor(Color.BLACK);
         setupLights();
-
-        //generate obstacle cubes
-        for (int groupNum = 0; groupNum < NUM_OBSTACLES; groupNum++) {
-                addShiftingObstacle();
+        
+        for (int i = 0; i < NUM_OBSTACLES; i++) {
+            addShiftingObstacle();
         }
 
         for (int objectiveNum = 0; objectiveNum < NUM_OBJECTIVES; objectiveNum++) {
@@ -71,12 +71,17 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
     private void setupLights() {
         RajawaliScene scene = getCurrentScene();
 
-        ALight light = new DirectionalLight(-1, -1, -1);
-        light.setPosition(5, 5, 5);
+        ALight light = new DirectionalLight(0, -1, 0);
+        light.setPosition(0, 10, 0);
         scene.addLight(light);
 
-        light = new DirectionalLight(1, 1, 1);
-        light.setPosition(-5, -5, -5);
+        light = new DirectionalLight(0, 1, 0);
+        light.setPosition(0, -10, 0);
+        scene.addLight(light);
+
+        light = new PointLight();
+        light.setPosition(0, 0, 0);
+        light.setPower(.2f);
         scene.addLight(light);
     }
 
@@ -89,9 +94,8 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
                 new Vector3(0, 0, 0),       //rotate around origin
                 Vector3.Axis.X,             //bug?
                 OBSTACLE_DIST,              //distance at which obstacles reside
-                MAX_OBSTACLE_VERT_SHIFT,    //maximum vertical distance obstacles will shift
-                RANDOM.nextDouble(),
-                RANDOM.nextBoolean());
+                OBSTACLE_VERT_SHIFT,    //maximum vertical distance obstacles will shift
+                RANDOM.nextDouble());
         animation.setRepeatMode(Animation.RepeatMode.INFINITE);
         animation.setDurationMilliseconds(OBSTACLE_ROTATION_TIME);
         animation.setStartTime((int) (RANDOM.nextFloat() * OBSTACLE_ROTATION_TIME));
@@ -141,7 +145,7 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
             capital.setMaterial(capitalMaterial);
             capital.setScale(3);
 
-            Utils.respawnOutOfSight(capital, OBJECTIVE_DIST);
+            capital.setY((RANDOM.nextDouble() * OBJECTIVE_VERT_SHIFT) - (OBJECTIVE_VERT_SHIFT / 2));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,11 +177,19 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
         if (!hitObstacle) {
             for (Object3D objective : objectives) {
                 if (Utils.isLookingAt(mHeadViewMatrix, objective)) {
-                    Toast.makeText(getContext(), "Hit!", Toast.LENGTH_SHORT).show();
-                    Utils.respawnOutOfSight(objective, OBJECTIVE_DIST);
+                    moveObjective(objective);
                     break;
                 }
             }
         }
+    }
+
+    private void moveObjective(Object3D objective) {
+        double oldY = objective.getY();
+        double y = (RANDOM.nextDouble() * OBJECTIVE_VERT_SHIFT) - (OBJECTIVE_VERT_SHIFT / 2);
+        while (-1 <= (oldY - y) && (oldY - y) <= 1) {
+            y = (RANDOM.nextDouble() * OBJECTIVE_VERT_SHIFT) - (OBJECTIVE_VERT_SHIFT / 2);
+        }
+        objective.setY(y);
     }
 }
