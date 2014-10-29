@@ -57,8 +57,8 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
         super.initScene();
 
         getCurrentScene().setBackgroundColor(Color.BLACK);
-        setupLights();
-        
+        addLights();
+
         for (int i = 0; i < NUM_OBSTACLES; i++) {
             addShiftingObstacle();
         }
@@ -68,20 +68,20 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
         }
     }
 
-    private void setupLights() {
+    private void addLights() {
         RajawaliScene scene = getCurrentScene();
 
         ALight light = new DirectionalLight(0, -1, 0);
-        light.setPosition(0, 10, 0);
+        light.setPosition(0, 5, 0);
         scene.addLight(light);
 
         light = new DirectionalLight(0, 1, 0);
-        light.setPosition(0, -10, 0);
+        light.setPosition(0, -5, 0);
         scene.addLight(light);
 
         light = new PointLight();
         light.setPosition(0, 0, 0);
-        light.setPower(.2f);
+        light.setPower(.4f);
         scene.addLight(light);
     }
 
@@ -100,7 +100,6 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
         animation.setDurationMilliseconds(OBSTACLE_ROTATION_TIME);
         animation.setStartTime((int) (RANDOM.nextFloat() * OBSTACLE_ROTATION_TIME));
         animation.setTransformable3D(obstacle);
-
         scene.registerAnimation(animation);
         animation.play();
 
@@ -138,7 +137,7 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
             capitalMaterial.addTexture(new Texture("capitalTex", R.drawable.hullw));
             capitalMaterial.addTexture(new NormalMapTexture("capitalNormTex", R.drawable.hulln));
 
-            LoaderAWD loader = new LoaderAWD(mContext.getResources(), mTextureManager, R.raw.capital);
+            LoaderAWD loader = new LoaderAWD(getContext().getResources(), mTextureManager, R.raw.capital);
             loader.parse();
 
             capital = loader.getParsedObject();
