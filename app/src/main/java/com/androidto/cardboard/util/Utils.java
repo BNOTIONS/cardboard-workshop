@@ -64,18 +64,11 @@ public class Utils {
         Matrix.setRotateM(rotationMatrix, 0, angleXZ, 0f, 1f, 0f);
 
         // Now get the up or down angle, between -20 and 20 degrees
-        float angleY = (float) Math.random() * 80 - 40; // angle in Y plane, between -40 and 40
+        float angleY = (float) Math.random() * 60 - 30; // angle in Y plane, between -30 and 30
         angleY = (float) Math.toRadians(angleY);
         float newY = (float)Math.tan(angleY) * distance;
 
         object.setPosition(posVec[0], newY, posVec[2]);
-//        Matrix.setIdentityM(cube, 0);
-//        Matrix.translateM(cube, 0, posVec[0], newY, posVec[2]);
-//        Matrix4 position = new Matrix4();
-//        position.identity();
-//        position.translate(posVec[0], newY, posVec[2]);
-//        object.setPosition(position);
-        //Vector3 position = new Vector3(1, 1, 1);
 
     }
 }

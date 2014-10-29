@@ -37,7 +37,7 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
     private static final int NUM_OBSTACLES = 120;
     private static final int OBSTACLE_DIST = 5;
     private static final int OBSTACLE_ROTATION_TIME = 25 * 1000;        //25 seconds
-    private static final int MAX_OBSTACLE_VERT_SHIFT = 3;
+    private static final int MAX_OBSTACLE_VERT_SHIFT = 4;
 
     private static final int NUM_OBJECTIVES = 5;
     private static final int OBJECTIVE_DIST = 7;
@@ -140,9 +140,8 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
             capital = loader.getParsedObject();
             capital.setMaterial(capitalMaterial);
             capital.setScale(3);
-            double rand = RANDOM.nextDouble() * MAX_OBJECTIVE_VERT_SHIFT;
-            rand -= rand - (MAX_OBJECTIVE_VERT_SHIFT / 2);
-            capital.setY(rand);
+
+            Utils.respawnOutOfSight(capital, OBJECTIVE_DIST);
         } catch (Exception e) {
             e.printStackTrace();
         }
