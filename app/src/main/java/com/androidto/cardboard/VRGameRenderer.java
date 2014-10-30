@@ -20,6 +20,7 @@ import rajawali.lights.DirectionalLight;
 import rajawali.lights.PointLight;
 import rajawali.materials.Material;
 import rajawali.materials.methods.DiffuseMethod;
+import rajawali.materials.textures.ATexture;
 import rajawali.materials.textures.NormalMapTexture;
 import rajawali.materials.textures.Texture;
 import rajawali.math.vector.Vector3;
@@ -34,15 +35,17 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
 
     private static final int[] COLORS = { Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.CYAN, Color.MAGENTA };
 
-    private static final int NUM_OBSTACLES = 120;
+    private static final int NUM_OBSTACLES = 80;
     private static final int OBSTACLE_DIST = 5;
     private static final int OBSTACLE_ROTATION_TIME = 25 * 1000;        //25 seconds
     private static final int OBSTACLE_VERT_SHIFT = 4;
+    private static final float OBSTACLE_SIZE = .5f;
 
     private static final int NUM_OBJECTIVES = 5;
     private static final int OBJECTIVE_DIST = 7;
     private static final int OBJECTIVE_ROTATION_TIME = 40 * 1000;       //40 seconds
     private static final int OBJECTIVE_VERT_SHIFT = 3;
+    private static final float OBJECTIVE_SIZE = 3f;
 
     private List<Object3D> obstacles = new ArrayList<Object3D>();
     private List<Object3D> objectives = new ArrayList<Object3D>();
@@ -54,18 +57,31 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
 
     @Override
     public void initScene() {
-        super.initScene();
 
-        getCurrentScene().setBackgroundColor(Color.BLACK);
         addLights();
 
+        //add obstacles
         for (int i = 0; i < NUM_OBSTACLES; i++) {
             addShiftingObstacle();
         }
 
+        //add objectives
         for (int objectiveNum = 0; objectiveNum < NUM_OBJECTIVES; objectiveNum++) {
             addObjective(objectiveNum);
         }
+
+        //setup skybox
+        getCurrentCamera().setFarPlane(1000);
+        getCurrentScene().setBackgroundColor(0xdddddd);
+        try {
+            getCurrentScene().setSkybox(R.drawable.posx, R.drawable.negx, R.drawable.posy, R.drawable.negy, R.drawable.posz, R.drawable.negz);
+        } catch (ATexture.TextureException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+
+        //call super at the end
+        super.initScene();
     }
 
     private void addLights() {
@@ -81,7 +97,7 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
 
         light = new PointLight();
         light.setPosition(0, 0, 0);
-        light.setPower(.4f);
+        light.setPower(3);
         scene.addLight(light);
     }
 
@@ -94,7 +110,7 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
                 new Vector3(0, 0, 0),       //rotate around origin
                 Vector3.Axis.X,             //bug?
                 OBSTACLE_DIST,              //distance at which obstacles reside
-                OBSTACLE_VERT_SHIFT,    //maximum vertical distance obstacles will shift
+                OBSTACLE_VERT_SHIFT,        //maximum vertical distance obstacles will shift
                 RANDOM.nextDouble());
         animation.setRepeatMode(Animation.RepeatMode.INFINITE);
         animation.setDurationMilliseconds(OBSTACLE_ROTATION_TIME);
@@ -112,9 +128,7 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
         objectives.add(objective);
 
         RotateAroundAnimation3D animation = new StrafingRotateAroundAnimation(
-                new Vector3(0, 0, 0),
-                Vector3.Axis.X,
-                OBJECTIVE_DIST);
+                new Vector3(0, 0, 0), Vector3.Axis.X, OBJECTIVE_DIST);
         animation.setRepeatMode(Animation.RepeatMode.INFINITE);
         animation.setDurationMilliseconds(OBJECTIVE_ROTATION_TIME);
         animation.setStartTime(objectiveNum * (OBJECTIVE_ROTATION_TIME / NUM_OBJECTIVES));
@@ -142,9 +156,9 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
 
             capital = loader.getParsedObject();
             capital.setMaterial(capitalMaterial);
-            capital.setScale(3);
+            capital.setScale(OBJECTIVE_SIZE);
 
-            capital.setY((RANDOM.nextDouble() * OBJECTIVE_VERT_SHIFT) - (OBJECTIVE_VERT_SHIFT / 2));
+            Utils.respawnOnVerticalAxis(capital, 0, OBJECTIVE_VERT_SHIFT);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -153,7 +167,7 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
     }
 
     private Object3D createObstacle() {
-        Object3D cube = new Cube(.5f);
+        Object3D cube = new Cube(OBSTACLE_SIZE);
 
         Material cubeMaterial = new Material();
         cubeMaterial.setColor(COLORS[RANDOM.nextInt(COLORS.length)]);
@@ -176,19 +190,10 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
         if (!hitObstacle) {
             for (Object3D objective : objectives) {
                 if (Utils.isLookingAt(mHeadViewMatrix, objective)) {
-                    moveObjective(objective);
+                    Utils.respawnOnVerticalAxis(objective, 1, OBJECTIVE_VERT_SHIFT);
                     break;
                 }
             }
         }
-    }
-
-    private void moveObjective(Object3D objective) {
-        double oldY = objective.getY();
-        double y = (RANDOM.nextDouble() * OBJECTIVE_VERT_SHIFT) - (OBJECTIVE_VERT_SHIFT / 2);
-        while (-1 <= (oldY - y) && (oldY - y) <= 1) {
-            y = (RANDOM.nextDouble() * OBJECTIVE_VERT_SHIFT) - (OBJECTIVE_VERT_SHIFT / 2);
-        }
-        objective.setY(y);
     }
 }

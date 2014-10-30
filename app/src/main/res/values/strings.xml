@@ -1,6 +1,3 @@
 <resources>
     <string name="app_name">Cardboard Workshop</string>
-    <string name="btn_rajawali_ex">Rajawali VR Example</string>
-    <string name="btn_video_ex">Video Texture Example</string>
-    <string name="btn_game_ex">VR Game Example</string>
 </resources>

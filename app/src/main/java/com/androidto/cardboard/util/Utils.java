@@ -3,6 +3,8 @@ package com.androidto.cardboard.util;
 import android.graphics.PointF;
 import android.opengl.Matrix;
 
+import java.util.Random;
+
 import rajawali.ATransformable3D;
 import rajawali.Object3D;
 import rajawali.math.Quaternion;
@@ -45,5 +47,20 @@ public class Utils {
      */
     public static Quaternion getCameraFacingQuat(ATransformable3D object) {
         return Quaternion.lookAtAndCreate(object.getPosition().inverse(), new Vector3(0, 1, 0), true);
+    }
+
+    /**
+     * sets the y positon parameter to a random distance at least misDistFromOld units away,
+     * while also being in the range (-maxDistFromZero, maxDistFromZero). No validation
+     * is done on input, so use at your own risk.
+     */
+    public static void respawnOnVerticalAxis(Object3D object, int minDistFromOld, int maxDistFromZero) {
+        Random random = new Random();
+        double oldY = object.getY();
+        double y = (random.nextDouble() * maxDistFromZero * 2) - (maxDistFromZero);
+        while (-minDistFromOld <= (oldY - y) && (oldY - y) <= minDistFromOld) {
+            y = (random.nextDouble() * maxDistFromZero * 2) - (maxDistFromZero);
+        }
+        object.setY(y);
     }
 }
