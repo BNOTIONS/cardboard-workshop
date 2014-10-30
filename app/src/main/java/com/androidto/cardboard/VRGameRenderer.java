@@ -58,18 +58,63 @@ public class VRGameRenderer extends RajawaliVRRenderer implements MagnetSensor.O
     @Override
     public void initScene() {
 
+        //stage 1
         addLights();
 
+        /*
+        Also stage 1:
+
+        Object3D obstacle = createObstacle();
+        obstacle.setPosition(0, 0, -5);
+        obstacle.rotateAround(new Vector3(1, 1, 1), 90);
+        getCurrentScene().addChild(obstacle);
+
+
+         */
+
+        /*
+
+        Stage 2:
+
+        for (int i = 0; i < 20; i++) {
+            double angle = i * (360 / 20);
+            PointF point = Utils.getPointOnCircle(angle, new PointF(0, 0), Const.OBJECTIVE_DIST);
+
+            Object3D obstacle = createObstacle();
+            obstacle.setPosition(point.x, 0, point.y);
+            obstacle.rotateAround(new Vector3(1, 1, 1), 90);
+            getCurrentScene().addChild(obstacle);
+        }
+         */
+
+        //Stage 3
         //add obstacles
         for (int i = 0; i < NUM_OBSTACLES; i++) {
             addShiftingObstacle();
         }
 
+        //Stage 4 is work inside addShiftingObstacle()
+
+        /*
+
+        Stage 5
+
+        Object3D objective = createObjective();
+        objective.setPosition(0, 0, -7);
+        objective.rotateAround(new Vector3(0, 1, 0), 90);
+        getCurrentScene().addChild(objective);
+
+         */
+
+        //Stage 6
         //add objectives
         for (int objectiveNum = 0; objectiveNum < NUM_OBJECTIVES; objectiveNum++) {
             addObjective(objectiveNum);
         }
 
+        // Stage 7 is the implementation of onCardboardTrigger()
+
+        // Stage 8
         //setup skybox
         getCurrentCamera().setFarPlane(1000);
         getCurrentScene().setBackgroundColor(0xdddddd);
