@@ -2,7 +2,6 @@ package com.androidto.cardboard;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -35,15 +34,15 @@ public class VRGameActivity extends RajawaliVRActivity {
         setRenderer(renderer);
 
         magnetSensor = new MagnetSensor(this);
-        magnetSensor.setOnCardboardTriggerListener(renderer);
-
-        View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
-        rootView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                renderer.onCardboardTrigger();
-            }
-        });
+//        magnetSensor.setOnCardboardTriggerListener(renderer);
+//
+//        View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
+//        rootView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                renderer.onCardboardTrigger();
+//            }
+//        });
 
     }
 
